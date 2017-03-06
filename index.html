@@ -181,9 +181,9 @@
       <h4></h4>
       <div><a href="#howto" class="ui huge primary button">Get Started <i class="right arrow icon"></i></a></div>
     </div>
-  </div>  
-  
-  
+  </div>
+
+
 <div id="loginModal" class="ui modal">
 		<div class="ui center aligned header">TeamChat</div>
 		<div class="content">
@@ -213,7 +213,7 @@
 							Or
                       </div>
 					<!--..	</div>-->
-                    
+
 					<div class="column">
 						<div class="ui form" id="register-form">
 						  <div class="field">
@@ -232,21 +232,23 @@
 						</div>
 					</div>
 				</div>
+  </div>
 		</div>
-	</div>
-  
-  
-  <div class="ui vertical stripe segment">
+
+
+    <div class="ui vertical stripe segment">
     <div class="ui middle aligned stackable grid container">
       <div class="row">
-	  
+
           <h3 class="ui header">About TeamChat</h3>
 		  <a NAME="howto"></a>
-          <p>TeamChat is a Discord bot and Overwolf application, which allows concurrent playback of a League of Legends replay and Discord voice chat. It allows management of a "team," which we will track after account creation. If your team gets in a game together while overwolf is running on at least one team member's computer, Janna will automatically join your voice chat and let you know she is recording, then record the audio during the game and leave at the end. Once a game finishes, simply watch the replay via the in-game client and the voice-chat will play through our overwolf application as long as it is running.</p>
-       
+          <p>TeamChat is a Discord bot and Overwolf application, which allows concurrent playback of a League of Legends replay and Discord voice chat. It allows management of a "team," which we will track after account creation.</p>
+      <p>If your team gets in a game together while overwolf is running on at least one team member's computer, Janna will automatically join your voice chat and let you know she is recording, then record the audio during the game and leave at the end. </p>
+        <p>Once a game finishes, simply watch the replay via the in-game client and the voice-chat will play through our overwolf application as long as it is running.</p>
+
           <h3 class="ui header">Steps to get the application working</h3>
           <p>
-1. Create an account on our site, http://teamchat.lol/<br/>
+1. Create an account on our site, <a href=http://teamchat.lol/>http://teamchat.lol</a><br/>
 2. Fill out all required fields, then click the link to invite our bot "Janna" to your discord server<br/>
 3. Install Overwolf, and make an account<br/>
 4. Download our overwolf app opk (until it gets registered on Overwolf, can be found on github linked above)<br/>
@@ -254,9 +256,8 @@
 6. Make sure overwolf is running in the system tray when playing a League game and it will record<br/>
 7. When watching a replay from in-client, make sure overwolf is running to get the audio</p>
         </div>
-      
-      
       </div>
+    </div>
  <div class="ui vertical stripe segment">
     <div class="ui text container">
       <a href="https://discordapp.com/oauth2/authorize?client_id=287882571239522314&scope=bot&permissions=0x02300008" class="darken">
@@ -265,7 +266,9 @@
     </div>
   </div>
 
-  <div class="ui inverted vertical footer segment">
+
+
+ <div class="ui inverted vertical footer segment">
     <div class="ui container">
       <div class="ui stackable inverted divided equal height stackable grid">
         <div class="three wide column">
@@ -280,23 +283,21 @@
             <a href="#" class="item">Discord Channel</a>
           </div>
         </div>
-        <div class="seven wide column">
-        </div>
       </div>
+        <div class="seven wide column"></div>
     </div>
-  </div>
 </div>
-  
+
 
 </body>
 
   <script>
 $(document).ready(function(){
      $('#loginbutton').click(function(){
-        $('#loginModal').modal('show');    
+        $('#loginModal').modal('show');
      });
      $('#registerbutton').click(function(){
-        $('#loginModal').modal('show');    
+        $('#loginModal').modal('show');
      });
 });
   </script>
@@ -310,13 +311,13 @@ $.ajax({
 	cache: false,
 	data: ({key: authtoken}),
 	success: function(data) {
-		
+
 		$("#teamsTarget").removeClass('loading')
 		if (handleAuth(data)){
 			$("#teamsTarget").html(Mustache.render($("#teams-template").html(), data))
 		}
-		
-		
+
+
 	}
 });
 
@@ -359,7 +360,7 @@ $('body').on('click', '.replays-button', function(){
 						</div>
 						{{/summoner_data}}
 					</div>
-					{{/players}}	
+					{{/players}}
 				</div>
 			</div>
 			<div class="ui two bottom attached buttons" data-teamid="{{id}}">
