@@ -1,0 +1,140 @@
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/semantic.min.js"></script>
+	<script src="js/mustache.js"></script>
+	<style>
+	.divider-column {
+	  position: relative;
+	  padding: 0 !important;
+	}
+	</style>
+	
+</head>
+<body>
+	<div id="main" class="ui container">
+		<div id="teamsTarget" class="ui segment loading" style="min-height: 200px"></div>
+	</div>
+	
+	<div id="loginModal" class="ui modal">
+		<div class="header modal-header-center">LoLSpec</div>
+		<div class="content">
+				<div class="ui two column middle aligned very relaxed stackable grid">
+					<div class="column">
+						<div class="ui form">
+							<div class="field">
+								<label>Email Address</label>
+								<div class="ui left icon input">
+									<input id="loginModal-username" type="text" placeholder="">
+									<i class="user icon"></i>
+								</div>
+							</div>
+							<div class="field">
+								<label>Password</label>
+								<div class="ui left icon input">
+									<input id="loginModal-pass" type="password">
+									<i class="lock icon"></i>
+								</div>
+							</div>
+							<p style="color:red;" id="loginModal-error"></p>
+							<div class="ui blue submit button" id="loginModal-submit">Login</div>
+						</div>
+					</div>
+					<div class="divider-column">
+						<div class="ui vertical divider">
+							Or
+						</div>
+					</div>
+					<div class="column">
+						<div class="ui form" id="register-form">
+						  <div class="field">
+						    <label>Email Address</label>
+						    <input type="email" id="register-email" placeholder="You'll use this to log in">
+						  </div>
+						  <div class="field">
+							<label>Password</label>
+							<input type="password" id="register-pass" placeholder="Super secret">
+						  </div>
+						  <div class="field">
+							<label>Confirm Password</label>
+							<input type="password" id="register-pass2" placeholder="Type it again">
+						  </div>
+						  <div class="ui primary button" id="register-button">Register</div>
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+
+</body>
+<script>
+var authtoken = 'xd'
+console.log(authtoken)
+$.ajax({
+	url: 'http://xd.ddnsking.com:3500/teams/',
+	dataType: 'json',
+	type: 'get',
+	cache: false,
+	data: ({key: authtoken}),
+	success: function(data) {
+		
+		$("#teamsTarget").removeClass('loading')
+		if (handleAuth(data)){
+			$("#teamsTarget").html(Mustache.render($("#teams-template").html(), data))
+		}
+		
+		
+	}
+});
+
+//functions
+function handleAuth(data){
+	if (!data.authenticated){
+		$('#loginModal').modal('setting', 'closable', false).modal('show');
+		return false
+	}
+	else{
+		return true
+	}
+}
+
+//events
+$('body').on('click', '.replays-button', function(){
+	var team_id = $(this).parent().data('teamid')
+	console.log('loading replays for '+team_id)
+})
+</script>
+
+
+<script id="teams-template" style="display:none;" type="text/template">
+	<h2>Your Teams</h2>
+	{{#teams}}
+	<div data-reactroot="" class="ui segment">
+		<div>
+			<div class="ui attached segment team" data-teamid="{{id}}">
+				<h2 class="ui header">{{name}}</h2>
+				<div class="ui five column grid">
+					{{#players}}
+					<div class="column player" data-summoner="{{sumid}}">
+						{{#summoner_data}}
+						<div class="ui fluid card">
+							<div class="image"><img src="http://ddragon.leagueoflegends.com/cdn/7.4.3/img/profileicon/{{profileIconId}}.png">
+							</div>
+							<div class="content">
+								<div class="description">{{name}}</div>
+							</div>
+						</div>
+						{{/summoner_data}}
+					</div>
+					{{/players}}	
+				</div>
+			</div>
+			<div class="ui two bottom attached buttons" data-teamid="{{id}}">
+				<div class="ui button manage-buttom">Manage</div>
+				<div class="ui primary button replays-button">Replays</div>
+			</div>
+		</div>
+	</div>
+	{{/teams}}
+</script>
