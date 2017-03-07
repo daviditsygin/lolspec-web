@@ -306,6 +306,7 @@ var authtoken = 'xd'
 var hash = window.location.hash;
 hash = roomQuery.substring(1);
 if (hash.length > 1){
+  window.location.hash = ''
   localStorage.setItem('authtoken', hash)
 }
 console.log(authtoken)
