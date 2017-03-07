@@ -303,6 +303,11 @@ $(document).ready(function(){
   </script>
   <script>
 var authtoken = 'xd'
+var hash = window.location.hash;
+hash = roomQuery.substring(1);
+if (hash.length > 1){
+  localStorage.setItem('authtoken', hash)
+}
 console.log(authtoken)
 $.ajax({
 	url: 'http://teamchat.lol:3500/teams/',
