@@ -18,8 +18,9 @@ db.connect(function(err){
 })
 
 //functions
-function authenticate(key, callback){
+function authenticate(key, ip, callback){
 	var user = {loggedIn: false, id: 0, email: ''}
+  db.query('insert into requests (ip) VALUES (?)', [ip])
 	db.query('select u.* from sessions s left outer join users u on s.user_id = u.id where s.session_hash = ?', [key])
 	.on('result', function(data){
 		user.loggedIn = true
@@ -37,7 +38,7 @@ function authenticate(key, callback){
 app.post('/auth/', upload.array(), function(req, res){
 	var returnData = {authenticated: false}
 	console.log(req.body)
-	authenticate(req.body.key, function(user){
+	authenticate(req.body.key, req.connection.remoteAddress, function(user){
 		if (user.loggedIn){
 			returnData.authenticated = true
 		}
@@ -47,7 +48,7 @@ app.post('/auth/', upload.array(), function(req, res){
 
 app.get('/teams/', function (req, res) {
 	console.log(req.query)
-	authenticate(req.query.key, function(user){
+	authenticate(req.query.key, req.connection.remoteAddress, function(user){
 		var returnData = {authenticated: false, teams: []}
 		if (user.loggedIn){
 			returnData.authenticated = true
