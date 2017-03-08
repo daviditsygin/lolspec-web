@@ -11,6 +11,7 @@ app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(cors())
 var config = JSON.parse(fs.readFileSync('config/config.json')); // read config
+console.log(config.riot_api)
 var db = mysql.createConnection(config.mysql)
 
 db.connect(function(err){

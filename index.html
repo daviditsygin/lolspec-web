@@ -259,7 +259,7 @@
       </div>
     </div>
  <div class="ui vertical stripe segment">
-    <div class="ui text container">
+    <div class="ui text container" align="center">
       <a href="https://discordapp.com/oauth2/authorize?client_id=287882571239522314&scope=bot&permissions=0x02300008" class="darken">
         <img id="discordpic" src="http://i.imgur.com/pThWyIe.png">
       </a>
@@ -304,7 +304,7 @@ $(document).ready(function(){
   <script>
 var authtoken = 'xd'
 var hash = window.location.hash;
-hash = roomQuery.substring(1);
+hash = hash.substring(1);
 if (hash.length > 1){
   window.location.hash = ''
   localStorage.setItem('authtoken', hash)
