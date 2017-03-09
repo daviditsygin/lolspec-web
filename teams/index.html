@@ -9,6 +9,11 @@
 	  position: relative;
 	  padding: 0 !important;
 	}
+	.new-team-button {
+		position: absolute;
+		top: 10px;
+		right: 20px;
+	}
 	</style>
 	
 </head>
@@ -17,7 +22,42 @@
 		<div id="teamsTarget" class="ui segment loading" style="min-height: 200px"></div>
 	</div>
 	
-
+	<div id="newTeamModal" class="ui modal">
+		<div class="ui center aligned header">New Team</div>
+		<div class="content">
+			<div class="ui form" id="new-team-form">
+				<div class="field">
+					<label>Team Name</label>
+					<input type="text" id="new-team-name" placeholder="Give your team a name">
+				</div>
+				<div class="fields">
+					<div class="field">
+						<label>Summoner 1</label>
+						<input type="text" class="new-team-summoner" placeholder="">
+					</div>
+					<div class="field">
+						<label>Summoner 2</label>
+						<input type="text" class="new-team-summoner" placeholder="">
+					</div>
+					<div class="field">
+						<label>Summoner 3</label>
+						<input type="text" class="new-team-summoner" placeholder="">
+					</div>
+					<div class="field">
+						<label>Summoner 4</label>
+						<input type="text" class="new-team-summoner" placeholder="">
+					</div>
+					<div class="field">
+						<label>Summoner 5</label>
+						<input type="text" class="new-team-summoner" placeholder="">
+					</div>
+				</div>				
+			</div>
+		</div>
+		<div class="actions">
+			<div class="ui primary button" id="new-team-submit">Submit</div>
+		</div>
+	</div>
 
 </body>
 <script>
@@ -56,11 +96,17 @@ $('body').on('click', '.replays-button', function(){
 	var team_id = $(this).parent().data('teamid')
 	console.log('loading replays for '+team_id)
 })
+
+$('body').on('click', '.new-team-button', function(){
+	$("#newTeamModal").modal('show')
+})
 </script>
 
 
 <script id="teams-template" style="display:none;" type="text/template">
-	<h2>Your Teams</h2>
+	<h2>My Teams</h2>
+	
+	<button class="ui button new-team-button">New Team</button>
 	{{#teams}}
 	<div data-reactroot="" class="ui segment">
 		<div>
