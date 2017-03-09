@@ -2,6 +2,9 @@ var express = require('express')
 var unirest = require('unirest')
 var mysql = require('mysql')
 var cors = require('cors')
+var validator = require('validator')
+var bcrypt = require('bcryptjs')
+var crypto = require('crypto')
 var app = express()
 var fs = require('fs');
 var bodyParser = require('body-parser');
@@ -19,6 +22,12 @@ db.connect(function(err){
 })
 
 //functions
+function generate_key() {
+    var sha = crypto.createHash('sha256');
+    sha.update(Math.random().toString());
+    return sha.digest('hex');
+}
+
 function authenticate(key, ip, callback){
 	var user = {loggedIn: false, id: 0, email: ''}
   db.query('insert into requests (ip) VALUES (?)', [ip])
@@ -45,6 +54,64 @@ app.post('/auth/', upload.array(), function(req, res){
 		}
 		res.send(returnData)
 	})
+})
+
+app.post('/register/', upload.array(), function(req, res){
+	var returnData = {success: false}
+  var found = false
+  var valid = true
+  
+  if (!validator.isEmail(req.body.email)){
+    valid = false
+    returnData.reason = 'Invalid Email'
+  }
+  
+  if (!validator.isLength(req.body.pass, {min: 6, max: 50})){
+    valid = false
+    returnData.reason = 'Password must be between 6 and 50 characters'
+  }
+  
+  if (valid){
+    db.query('select * from users where email = ? ', [req.body.email])
+    .on('result', function(){
+      found = true
+    })
+    .on('end', function(){
+      //account doesn't already exist - go ahead and register
+      if (!found){
+        //hash pw
+        bcrypt.genSalt(10, function(err, salt) {
+            bcrypt.hash(req.body.pass, salt, function(err, hash) {
+                //create user record
+                db.query('insert into users (email, hash) VALUES (?, ?)', [req.body.email, hash], function(error, results, fields){
+                  if (error){
+                    returnData.reason = "Internal error occured"
+                    res.send(returnData)
+                  }
+                  else{
+                    var userid = results.insertId
+                    var sessionkey = generate_key()
+                    db.query('insert into sessions (user_id, session_hash) VALUES (?, ?)', [userid, sessionkey])
+                    .on('end', function(){
+                      returnData.sessionkey = sessionkey
+                      returnData.success = true
+                      res.send(returnData)
+                    })
+                  }
+                })
+            });
+        });
+      }
+      else{
+        returnData.reason = "Email already registered"
+        res.send(returnData)
+      }
+    })
+  }
+  else{
+    res.send(returnData)
+  }
+
 })
 
 app.get('/teams/', function (req, res) {
