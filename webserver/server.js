@@ -118,6 +118,46 @@ app.post('/register/', upload.array(), function(req, res){
   }
 })
 
+app.post('/login/', upload.array(), function(req, res){
+  var returnData = {success: false}
+  var userFound = false;
+  var pw = req.body.pw
+  db.query('SELECT * from users where email = ?', [req.body.user])
+  .on('result', function(data){
+    console.log('user found in db')
+    userFound = true;
+    var pwhash = data.hash;
+    console.log(pwhash)
+    console.log(pw)
+    bcrypt.compare(pw, pwhash, function(err, result) {
+        if (result){
+        //password has been verified
+        console.log('password verified')
+        var tokenToSend = generate_key()
+
+        db.query('INSERT INTO sessions (session_hash, user_id) VALUES (?, ?)', [crypto.createHash('md5').update(tokenToSend).digest('hex'), data.id])
+
+        returnData.sessionkey = tokenToSend
+        returnData.success = true
+        
+        res.send(returnData)
+      }
+      else{
+        console.log('password not verified')
+        //password not verified
+        res.send(returnData)
+      }
+    });
+
+  })
+  .on('end', function(data){
+    //user not found
+    if (!userFound)
+      res.send(returnData)
+  })
+  
+})
+
 app.post('/newteam/', upload.array(), function(req, res){
   authenticate(req.body.key, req.connection.remoteAddress, function(user){
     var returnData = {success: false, authenticated: false}
@@ -137,6 +177,7 @@ app.post('/newteam/', upload.array(), function(req, res){
         }
         else{
           var teamid = results.insertId
+          returnData.teamid = teamid
           for (var i = 0; i < req.body.summoners.length; i++){
             console.log(req.body.summoners[i].summoner)
             summonernames += req.body.summoners[i].summoner+','

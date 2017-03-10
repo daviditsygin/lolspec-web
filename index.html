@@ -190,14 +190,14 @@
           <div class="field">
             <label>Email Address</label>
             <div class="ui left icon input">
-              <input id="loginModal-username" type="text" placeholder="">
+              <input id="loginModal-username" type="text" placeholder="Email">
               <i class="user icon"></i>
             </div>
           </div>
           <div class="field">
             <label>Password</label>
             <div class="ui left icon input">
-              <input id="loginModal-pass" type="password">
+              <input id="loginModal-pass" type="password" placeholder="********">
               <i class="lock icon"></i>
             </div>
           </div>
@@ -367,6 +367,30 @@
         });
       }
     })
+    
+    $('body').on('click', '#loginModal-submit', function(){
+
+        $("#loginModal-submit").addClass('disabled')
+        $.ajax({
+          url: 'http://teamchat.lol:3500/login/',
+          dataType: 'json',
+          type: 'post',
+          cache: false,
+          data: ({user: $("#loginModal-username").val(), pw: $("#loginModal-pass").val()}),
+          success: function(data) {
+            if (data.success){
+              localStorage.setItem('authtoken', data.sessionkey)
+              window.location.href = '/teams'; 
+            }
+            else{
+              alert('Login failed')
+              $("#loginModal-submit").removeClass('disabled')
+            }            
+          }
+        });
+      
+    })
+    
     </script>
     
     
