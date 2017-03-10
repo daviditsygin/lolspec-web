@@ -226,7 +226,7 @@ app.get('/teams/', function (req, res) {
 			var teams = []
 			var team = {}
 			team.players = []
-			db.query('select p.*, t.team_name from teams t left outer join players p on t.id = p.team_id where t.owner = ? order by t.id', [user.id])
+			db.query('select p.*, t.team_name from teams t left outer join players p on t.id = p.team_id where t.owner = ? and p.id is not null order by t.id', [user.id])
 			.on('result', function(data){
 
 				// check if the team is empty
@@ -257,6 +257,9 @@ app.get('/teams/', function (req, res) {
 			.on('end', function() {
 				teams.push(team);
 				console.log(teams);
+        
+        console.log(summonerids.substring(0, summonerids.length-1))
+        
 				unirest.get('https://na.api.pvp.net/api/lol/na/v1.4/summoner/'+(summonerids.substring(0, summonerids.length-1))+'?api_key='+config.riot_api)
 					.headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
 					.end(function (response) {
