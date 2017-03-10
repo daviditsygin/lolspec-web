@@ -119,7 +119,58 @@ app.post('/register/', upload.array(), function(req, res){
 })
 
 app.post('/newteam/', upload.array(), function(req, res){
-  
+  authenticate(req.body.key, req.connection.remoteAddress, function(user){
+    var returnData = {success: false, authenticated: false}
+    if (user.loggedIn){
+      returnData.authenticated = true
+      var summonernames = ''
+      var summonerids = []
+      console.log(req.body.summoners)
+      if (req.body.summoners.length != 5){
+        returnData.reason = 'Invalid number of summoners'
+        res.send(returnData)
+      }
+      db.query('insert into teams (team_name, owner) VALUES (?, ?)', [req.body.name, user.id], function(error, results, fields){
+        if (error){
+          returnData.reason = "Internal error occured"
+          res.send(returnData)
+        }
+        else{
+          var teamid = results.insertId
+          for (var i = 0; i < req.body.summoners.length; i++){
+            console.log(req.body.summoners[i].summoner)
+            summonernames += req.body.summoners[i].summoner+','
+          }
+          
+          summonernames = summonernames.substring(0, summonernames.length-1)
+          console.log(summonernames)
+          unirest.get('https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/'+summonernames+'?api_key='+config.riot_api)
+          .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+          .end(function (response) {
+            //console.log(response.body)
+            var summonersData = response.body;
+            console.log(summonersData)
+            for (sum in summonersData){
+              for (var i = 0; i < req.body.summoners.length; i++){
+                if (summonersData[sum].name == req.body.summoners[i].summoner){
+                  summonerids.push(summonersData[sum].id)
+                  console.log(sum)
+                  console.log('found and matched')
+                  console.log(req.body.summoners[i])
+                  db.query('insert into players (summoner_id, team_id, discord_display_name, discord_discriminator) VALUES (?, ?, ?, ?)', [summonersData[sum].id, teamid, req.body.summoners[i].name, req.body.summoners[i].number])
+                }
+              }
+            }
+            returnData.success = true
+            res.send(returnData)
+          });
+        }
+      })
+    }
+    else{
+      res.send(returnData)
+    }
+  })
 })
 
 app.get('/teams/', function (req, res) {
@@ -155,7 +206,11 @@ app.get('/teams/', function (req, res) {
 							team.players = []
 						});
 					}
+          
 				}
+        else{
+          currTeam = data.team_id
+        }
 				team.id = data.team_id
 				team.name = data.team_name
 				team.players.push({dbname: data.name, sumid: data.summoner_id})

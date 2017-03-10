@@ -30,28 +30,91 @@
 					<label>Team Name</label>
 					<input type="text" id="new-team-name" placeholder="Give your team a name">
 				</div>
-				<div class="fields">
-					<div class="field">
-						<label>Summoner 1</label>
-						<input type="text" class="new-team-summoner" placeholder="">
+				<div class="ui two column grid">
+				  <div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 1</label>
+								<input type="text" placeholder="Summoner Name" name="sn1" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname1" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum1" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
 					</div>
-					<div class="field">
-						<label>Summoner 2</label>
-						<input type="text" class="new-team-summoner" placeholder="">
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 2</label>
+								<input type="text" placeholder="Summoner Name" name="sn2" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname2" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum2" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
 					</div>
-					<div class="field">
-						<label>Summoner 3</label>
-						<input type="text" class="new-team-summoner" placeholder="">
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 3</label>
+								<input type="text" placeholder="Summoner Name" name="sn3" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname3" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum3" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
 					</div>
-					<div class="field">
-						<label>Summoner 4</label>
-						<input type="text" class="new-team-summoner" placeholder="">
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 4</label>
+								<input type="text" placeholder="Summoner Name" name="sn4" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname4" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum4" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
 					</div>
-					<div class="field">
-						<label>Summoner 5</label>
-						<input type="text" class="new-team-summoner" placeholder="">
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 5</label>
+								<input type="text" placeholder="Summoner Name" name="sn5" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname5" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum5" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
 					</div>
-				</div>				
+				</div>
+
+
+			
 			</div>
 		</div>
 		<div class="actions">
@@ -63,22 +126,7 @@
 <script>
 var authtoken = 'xd'
 console.log(authtoken)
-$.ajax({
-	url: 'http://teamchat.lol:3500/teams/',
-	dataType: 'json',
-	type: 'get',
-	cache: false,
-	data: ({key: authtoken}),
-	success: function(data) {
-		
-		$("#teamsTarget").removeClass('loading')
-		if (handleAuth(data)){
-			$("#teamsTarget").html(Mustache.render($("#teams-template").html(), data))
-		}
-		
-		
-	}
-});
+loadTeams()
 
 //functions
 function handleAuth(data){
@@ -91,6 +139,25 @@ function handleAuth(data){
 	}
 }
 
+function loadTeams(){
+	$.ajax({
+		url: 'http://teamchat.lol:3500/teams/',
+		dataType: 'json',
+		type: 'get',
+		cache: false,
+		data: ({key: authtoken}),
+		success: function(data) {
+			
+			$("#teamsTarget").removeClass('loading')
+			if (handleAuth(data)){
+				$("#teamsTarget").html(Mustache.render($("#teams-template").html(), data))
+			}
+			
+			
+		}
+	});
+}
+
 //events
 $('body').on('click', '.replays-button', function(){
 	var team_id = $(this).parent().data('teamid')
@@ -99,6 +166,36 @@ $('body').on('click', '.replays-button', function(){
 
 $('body').on('click', '.new-team-button', function(){
 	$("#newTeamModal").modal('show')
+})
+
+$('body').on('click', '#new-team-submit', function(){
+	
+	$("#new-team-submit").addClass('disabled')
+	
+	var summoners = []
+	var name = $("#new-team-name").val()
+	$('.summoner-column').each(function(i, obj){
+		summoners.push({summoner: $(this).find('.new-team-summoner').val(), name: $(this).find('.new-team-discord-name').val(), number: $(this).find('.new-team-discord-number').val()})
+	})
+	
+	$.ajax({
+		url: 'http://teamchat.lol:3500/newteam/',
+		dataType: 'json',
+		type: 'post',
+		cache: false,
+		data: {key: authtoken, summoners: summoners, name: name},
+		success: function(data) {
+			if (data.success){
+				$("#newTeamModal").modal('hide')
+			}
+			else{
+				alert(data.reason)
+				$("#new-team-submit").removeClass('disabled')
+			}  
+			
+			
+		}
+	});
 })
 </script>
 
