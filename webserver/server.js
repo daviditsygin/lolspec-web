@@ -23,7 +23,7 @@ db.connect(function(err){
 })
 
 io.sockets.on('connection', function(socket){
-  
+
 })
 
 //functions
@@ -65,17 +65,17 @@ app.post('/register/', upload.array(), function(req, res){
 	var returnData = {success: false}
   var found = false
   var valid = true
-  
+
   if (!validator.isEmail(req.body.email)){
     valid = false
     returnData.reason = 'Invalid Email'
   }
-  
+
   if (!validator.isLength(req.body.pass, {min: 6, max: 50})){
     valid = false
     returnData.reason = 'Password must be between 6 and 50 characters'
   }
-  
+
   if (valid){
     db.query('select * from users where email = ? ', [req.body.email])
     .on('result', function(){
@@ -141,7 +141,7 @@ app.post('/newteam/', upload.array(), function(req, res){
             console.log(req.body.summoners[i].summoner)
             summonernames += req.body.summoners[i].summoner+','
           }
-          
+
           summonernames = summonernames.substring(0, summonernames.length-1)
           console.log(summonernames)
           unirest.get('https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/'+summonernames+'?api_key='+config.riot_api)
@@ -182,61 +182,62 @@ app.get('/teams/', function (req, res) {
 			var summonerids = ''
 			var currTeam = 0
 			var push = false
-
+			var teams = []
 			var team = {}
 			team.players = []
 			db.query('select p.*, t.team_name from teams t left outer join players p on t.id = p.team_id where t.owner = ? order by t.id', [user.id])
 			.on('result', function(data){
 
-				if (data.team_id != currTeam){
-
-					if (currTeam > 0){
-						summonerids = summonerids.substring(0, summonerids.length-1)
-						console.log(summonerids)
-						unirest.get('https://na.api.pvp.net/api/lol/na/v1.4/summoner/'+summonerids+'?api_key='+config.riot_api)
-						.headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
-						.end(function (response) {
-							var summonersData = response.body
-							for (var i = 0; i < summonersData.length; i++){
-								team.players[i].summoner_data = summonersData[i]
-							}
-							returnData.teams.push(team)
-							currTeam = data.team_id
-							team = {}
-							team.players = []
-						});
-					}
-          
+				// check if the team is empty
+				if (team.players.length == 0) {
+					currTeam = data.team_id;
+					team.id = data.team_id;
+					team.name = data.team_name;
 				}
-        else{
-          currTeam = data.team_id
-        }
-				team.id = data.team_id
-				team.name = data.team_name
-				team.players.push({dbname: data.name, sumid: data.summoner_id})
-				summonerids += data.summoner_id+','
-			})
-			.on('end', function(){
 
-				summonerids = summonerids.substring(0, summonerids.length-1)
-				console.log(summonerids)
-				unirest.get('https://na.api.pvp.net/api/lol/na/v1.4/summoner/'+summonerids+'?api_key='+config.riot_api)
-				.headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
-				.end(function (response) {
-					//console.log(response.body)
-					var summonersData = response.body;
-					for (sum in summonersData){
-						for (var i = 0; i < team.players.length; i++){
-							if (team.players[i].sumid == summonersData[sum].id){
-								team.players[i].summoner_data = summonersData[sum]
+				// add the player to the current team if they are on it
+				if (data.team_id == currTeam) {
+					team.players.push({sumid: data.summoner_id});
+					summonerids += data.summoner_id + ', ';
+				}
+				else { // the current player is on a different team than the current one
+					teams.push(team);
+					team = {}
+					team.players = []
+					currTeam = data.team_id;
+
+					team.id = data.team_id;
+					team.name = data.team_name;
+
+					team.players.push({sumid: data.summoner_id});
+					summonerids += data.summoner_id + ', ';
+				}
+			})
+			.on('end', function() {
+				teams.push(team);
+				console.log(teams);
+				unirest.get('https://na.api.pvp.net/api/lol/na/v1.4/summoner/'+(summonerids.substring(0, summonerids.length-1))+'?api_key='+config.riot_api)
+					.headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+					.end(function (response) {
+						var summonersData = response.body
+						// for (var i = 0; i < summonersData.length; i++){
+						// 	team.players[i].summoner_data = summonersData[i]
+						// }
+						for (var i = 0; i < teams.length; i++) {
+							for (var j = 0; j < teams[i].players.length; j++) {
+
+								var summonerId = teams[i].players[j].sumid;
+								for (sum in summonersData) {
+									if (summonersData[sum].id == summonerId) {
+										teams[i].players[j].summoner_data = summonersData[sum];
+									}
+								}
 							}
 						}
-
-					}
-					returnData.teams.push(team)
-					res.send(returnData)
-
-				});
+						returnData.teams = teams;
+						console.log(summonersData);
+						res.send(returnData);
+					});
 			})
 		}
 		else{
