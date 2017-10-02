@@ -1,0 +1,236 @@
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
+	<script src="/js/jquery.min.js"></script>
+	<script src="/js/semantic.min.js"></script>
+	<script src="/js/mustache.js"></script>
+	<style>
+	.divider-column {
+	  position: relative;
+	  padding: 0 !important;
+	}
+	.new-team-button {
+		position: absolute;
+		top: 10px;
+		right: 20px;
+	}
+	</style>
+
+</head>
+<body>
+	<div id="main" class="ui container">
+		<div id="teamsTarget" class="ui segment loading" style="min-height: 200px"></div>
+	</div>
+
+	<div id="newTeamModal" class="ui modal">
+		<div class="ui center aligned header">New Team</div>
+		<div class="content">
+			<div class="ui form" id="new-team-form">
+				<div class="field">
+					<label>Team Name</label>
+					<input type="text" id="new-team-name" placeholder="Give your team a name">
+				</div>
+				<div class="ui two column grid">
+				  <div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 1</label>
+								<input type="text" placeholder="Summoner Name" name="sn1" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname1" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum1" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
+					</div>
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 2</label>
+								<input type="text" placeholder="Summoner Name" name="sn2" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname2" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum2" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
+					</div>
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 3</label>
+								<input type="text" placeholder="Summoner Name" name="sn3" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname3" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum3" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
+					</div>
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 4</label>
+								<input type="text" placeholder="Summoner Name" name="sn4" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname4" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum4" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
+					</div>
+					<div class="column summoner-column">
+						<div class="fields">
+							<div class="sixteen wide field">
+								<label>Summoner 5</label>
+								<input type="text" placeholder="Summoner Name" name="sn5" class="new-team-summoner" placeholder="">
+							</div>
+						</div>
+						<div class="fields">
+							<div class="ten wide field">
+								<input type="text" placeholder="Discord Name" name="dname5" class="new-team-discord-name" placeholder="">
+							</div>
+							<div class="six wide field">
+								<input type="number" placeholder="####" name="dnum5" class="new-team-discord-number" placeholder="">
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+
+			</div>
+		</div>
+		<div class="actions">
+			<div class="ui primary button" id="new-team-submit">Submit</div>
+		</div>
+	</div>
+
+</body>
+<script>
+var authtoken = localStorage.getItem("authtoken");
+//console.log(authtoken)
+loadTeams()
+
+//functions
+function handleAuth(data){
+	if (!data.authenticated){
+		$('#loginModal').modal('setting', 'closable', false).modal('show');
+		return false
+	}
+	else{
+		return true
+	}
+}
+
+function loadTeams(){
+	$.ajax({
+		url: 'http://teamchat.lol:3500/teams/',
+		dataType: 'json',
+		type: 'get',
+		cache: false,
+		data: ({key: authtoken}),
+		success: function(data) {
+
+			$("#teamsTarget").removeClass('loading')
+			if (handleAuth(data)){
+				$("#teamsTarget").html(Mustache.render($("#teams-template").html(), data))
+			}
+
+
+		}
+	});
+}
+
+//events
+$('body').on('click', '.replays-button', function(){
+	var team_id = $(this).parent().data('teamid')
+	console.log('loading replays for '+team_id)
+})
+
+$('body').on('click', '.new-team-button', function(){
+	$("#newTeamModal").modal('show')
+})
+
+$('body').on('click', '#new-team-submit', function(){
+
+	$("#new-team-submit").addClass('disabled')
+
+	var summoners = []
+	var name = $("#new-team-name").val()
+	$('.summoner-column').each(function(i, obj){
+		summoners.push({summoner: $(this).find('.new-team-summoner').val(), name: $(this).find('.new-team-discord-name').val(), number: $(this).find('.new-team-discord-number').val()})
+	})
+
+	$.ajax({
+		url: 'http://teamchat.lol:3500/newteam/',
+		dataType: 'json',
+		type: 'post',
+		cache: false,
+		data: {key: authtoken, summoners: summoners, name: name},
+		success: function(data) {
+			if (data.success){
+				$("#newTeamModal").find('.content').html('<div class="ui text container" align="center"><a href="https://discordapp.com/oauth2/authorize?client_id=287882571239522314&scope=bot&permissions=0x02300008&redirect_uri=http%3A%2F%2Fteamchat.lol%2Fteams&response_type=code" class="darken"><img id="discordpic" src="http://i.imgur.com/pThWyIe.png"></a></div>')
+				$("#newTeamModal").find('.header').html('Connect to Discord')
+			}
+			else{
+				alert(data.reason)
+				$("#new-team-submit").removeClass('disabled')
+			}
+
+
+		}
+	});
+})
+</script>
+
+
+<script id="teams-template" style="display:none;" type="text/template">
+	<h2>My Teams</h2>
+
+	<button class="ui button new-team-button">New Team</button>
+	{{#teams}}
+	<div data-reactroot="" class="ui segment">
+		<div>
+			<div class="ui attached segment team" data-teamid="{{id}}">
+				<h2 class="ui header">{{name}}</h2>
+				<div class="ui five column grid">
+					{{#players}}
+					<div class="column player" data-summoner="{{sumid}}">
+						{{#summoner_data}}
+						<div class="ui fluid card">
+							<div class="image"><img src="http://ddragon.leagueoflegends.com/cdn/7.4.3/img/profileicon/{{profileIconId}}.png">
+							</div>
+							<div class="content">
+								<div class="description">{{name}}</div>
+							</div>
+						</div>
+						{{/summoner_data}}
+					</div>
+					{{/players}}
+				</div>
+			</div>
+			<div class="ui two bottom attached buttons" data-teamid="{{id}}">
+				<div class="ui button manage-buttom">Manage</div>
+				<div class="ui primary button replays-button">Replays</div>
+			</div>
+		</div>
+	</div>
+	{{/teams}}
+</script>

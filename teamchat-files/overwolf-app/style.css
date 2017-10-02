@@ -1,0 +1,109 @@
+﻿html {
+    background-color: transparent;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+
+body {
+	height: 100%;
+	width: 100%;
+	margin: 0px;
+}
+
+#topBar {
+	border-top-right-radius: 10px;
+	border-top-left-radius: 10px;
+	background: black;
+	height: 38px;
+	cursor: default;
+}
+
+#bottomBar {
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	background: black;
+	height: 30px;
+	cursor: default;
+}
+
+.teamchat-logo-left {
+	width: 100px;
+	position: relative;
+	height: inherit;
+	background-color: grey;
+	float: left;
+	border-top-left-radius: 10px;
+}
+
+.topBar-element {
+	margin-right: 10px;
+	top: 9px;
+	position: relative;
+	width: 20px;
+	cursor: pointer;
+}
+
+#resizeGripTop {
+	height: 10px;
+	top: 0;
+	left: 10px;
+	right: 10px;
+	cursor: ns-resize;
+}
+
+#resizeGripBottom {
+	height: 10px;
+	bottom: 0;
+	left: 10px;
+	right: 10px;
+	cursor: ns-resize;
+}
+
+#resizeGripLeft {
+	width: 10px;
+	left: 0;
+	top: 10px;
+	bottom: 10px;
+	cursor: ew-resize;
+}
+
+#resizeGripRight {
+	width: 10px;
+	right: 0;
+	top: 10px;
+	bottom: 10px;
+	cursor: ew-resize;
+}
+
+#resizeGripTopLeft {
+	width: 10px;
+	height: 10px;
+	top: 0;
+	left: 0;
+	cursor: nwse-resize;
+}
+
+#resizeGripBottomLeft {
+	width: 10px;
+	height: 10px;
+	bottom: 0;
+	left: 0;
+	cursor: nesw-resize;
+}
+
+#resizeGripTopRight {
+	width: 10px;
+	height: 10px;
+	top: 0;
+	right: 0;
+	cursor: nesw-resize;
+}
+
+#resizeGripBottomRight {
+	width: 10px;
+	height: 10px;
+	bottom: 0;
+	right: 0;
+	cursor: nwse-resize;
+}
