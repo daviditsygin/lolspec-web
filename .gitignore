@@ -1,9 +1,3 @@
 .remote-sync.json
 config/
-teamchat-files/audiosync/
-teamchat-files/core-server/
-teamchat-files/discordleaguebotv1
-teamchat-files/overwolf-app
-teamchat-files/teams
-teamchat-files/webserver
-teamchat-files/info.php
+teamchat-files/
